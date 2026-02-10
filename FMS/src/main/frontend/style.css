@@ -1,0 +1,109 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+html, body {
+    height: 100%;
+    width: 100%;
+    font-family: Gilroy, arial, Helvetica Neue, sans-serif;
+    font-weight: 200;
+    background-color: #f8f8f8;
+}
+header {
+    background-color: #355E51;
+    width: 100%; 
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+nav ul{
+    height: 80px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    list-style: none;
+    text-decoration: none;
+}
+.logo img {
+    height: 45px;
+    width: 150px;
+    
+}
+.option {
+    display: flex;
+    gap: 80px;
+}
+nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 20px;
+}
+.main {
+    max-width: 1000px;
+    position: relative;
+    margin: auto;
+}
+.carousel {
+  max-width: 1000px;
+  position: relative;
+  margin: auto;
+}
+.slide {
+  display: none; /* Hidden by default */
+}
+
+.slide img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  display: block;
+}
+
+/* Fade animation */
+.fade {
+  animation: fadeEffect 2s;
+}
+
+@keyframes fadeEffect {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+.food-suggestion {
+    position: relative; /* REQUIRED */
+    padding: 0 40px;
+}
+
+.food-list {
+    margin-top: 30px;
+    display: flex;
+    gap: 25px;
+    overflow-x: auto;   /* Allows scrolling */
+    scroll-behavior: smooth; /* Makes the button scroll smooth */
+    padding: 10px 0;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.food-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.food-list {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.food-item {
+    flex: 0 0 auto; /* Prevents items from shrinking */
+    text-align: center;
+}
+
+.food-item img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
