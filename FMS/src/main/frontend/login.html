@@ -6,7 +6,6 @@
     <title>Login | LeafBox</title>
     <script src="https://kit.fontawesome.com/e3890e647b.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="login.css">
 </head>
 <style>
     .login-body {
@@ -149,11 +148,11 @@
         <form id="login-form">
             <div class="input-group">
                 <i class="fa-regular fa-user"></i>
-                <input type="username" placeholder="User Name" required>
+                <input id="username" type="username" placeholder="User Name" required>
             </div>
             <div class="input-group">
                 <i class="fa-solid fa-lock"></i>
-                <input type="password" placeholder="Password" required>
+                <input id="password" type="password" placeholder="Password" required>
             </div>
             <button type="submit" class="login-btn">Sign In</button>
         </form>
@@ -161,7 +160,7 @@
         <form id="signup-form" style="display: none;">
             <div class="input-group">
                 <i class="fa-regular fa-user"></i>
-                <input type="text" placeholder="Full Name" required>
+                <input id="sign-username" type="username" placeholder="User Name" required>
             </div>
             <div class="input-group">
                 <i class="fa-regular fa-envelope"></i>
@@ -169,7 +168,7 @@
             </div>
             <div class="input-group">
                 <i class="fa-solid fa-lock"></i>
-                <input type="password" placeholder="Create Password" required>
+                <input id="sign-password" type="password" placeholder="Create Password" required>
             </div>
             <button type="submit" class="login-btn">Create Account</button>
         </form>
@@ -182,69 +181,104 @@
 
 
     <script>
-        function toggleForms() {
-        const loginForm = document.getElementById('login-form');
-        const signupForm = document.getElementById('signup-form');
-        const title = document.getElementById('form-title');
-        const subtitle = document.getElementById('form-subtitle');
-        const toggleLink = document.getElementById('toggle-text');
+        const API_BASE_URL = "http://localhost:8080/users";
 
-        if (loginForm.style.display === "none") {
-            // Switch back to Login
-            loginForm.style.display = "block";
-            signupForm.style.display = "none";
-            title.innerText = "Welcome Back";
-            subtitle.innerText = "Eat Clean. Pack Green.";
-            toggleLink.innerHTML = 'Don\'t have an account? <a href="javascript:void(0)" onclick="toggleForms()">Create One</a>';
-            } else {
-            // Switch to Sign Up
-            loginForm.style.display = "none";
-            signupForm.style.display = "block";
-            title.innerText = "Join LeafBox";
-            subtitle.innerText = "Start your healthy journey today.";
-            toggleLink.innerHTML = 'Already have an account? <a href="javascript:void(0)" onclick="toggleForms()">Sign In</a>';
-            }
-        } 
-        // Simple form handling for your API
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+        document.getElementById('signup-form').addEventListener('submit', handleSignup);
+
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
-            
-            console.log("Attempting login for:", email);
-            
-        });
-        // Replace this with your actual local or hosted API URL
-const API_BASE_URL = "http://localhost:8080/api/auth"; 
 
-// Example for your Login Controller
-async function handleLogin(event) {
-    event.preventDefault();
-    
-    // Capturing data from the form
-    const loginData = {
-        username: event.target.username.value,
-        password: event.target.password.value
-    };
+            if (!username || !password) {
+                alert("Enter both username and password");
+                return;
+            }
 
-    const response = await fetch(`${API_BASE_URL}/login`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(loginData)
-    });
+            try {
+                // Send login request to backend
+                const params = new URLSearchParams();
+                params.append("userName", username);
+                params.append("pass", password);
 
-    if (response.ok) {
-        const result = await response.json();
-        // result might contain a JWT token or user details
-        console.log("Success:", result);
-        window.location.href = "index.html"; 
-    } else {
-        const errorData = await response.json();
-        alert("Login failed: " + (errorData.message || "Invalid credentials"));
-    }
-}
+                const response = await fetch(`${API_BASE_URL}/login?${params.toString()}`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    // Save username in localStorage after successful login
+                    localStorage.setItem("leafboxUser", username);
+
+                    // Redirect to homepage
+                    window.location.href = "index.html";
+                } else {
+                    const errorText = await response.text();
+                    alert("Login failed: " + errorText);
+                }
+
+            } catch (err) {
+                alert("Login request failed: " + err.message);
+            }
+        }
+
+        async function handleSignup(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('sign-username').value.trim();
+            const email = document.querySelector('#signup-form input[type="email"]').value.trim();
+            const password = document.getElementById('sign-password').value;
+            const role = "USER";
+
+            if (!username || !email || !password) {
+                alert("Please fill all fields");
+                return;
+            }
+
+            const userData = { username, email, password, role };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                if (response.ok) {
+                    alert("Account created successfully! Please log in.");
+                    toggleForms();
+                } else {
+                    const errorText = await response.text();
+                    alert("Signup failed: " + errorText);
+                }
+
+            } catch (err) {
+                alert("Signup request failed: " + err.message);
+            }
+        }
+
+        function toggleForms() {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const title = document.getElementById('form-title');
+            const subtitle = document.getElementById('form-subtitle');
+            const toggleLink = document.getElementById('toggle-text');
+
+            if (loginForm.style.display === "none") {
+                loginForm.style.display = "block";
+                signupForm.style.display = "none";
+                title.innerText = "Welcome Back";
+                subtitle.innerText = "Eat Clean. Pack Green.";
+                toggleLink.innerHTML = 'Don\'t have an account? <a href="javascript:void(0)" onclick="toggleForms()">Create One</a>';
+            } else {
+                loginForm.style.display = "none";
+                signupForm.style.display = "block";
+                title.innerText = "Join LeafBox";
+                subtitle.innerText = "Start your healthy journey today.";
+                toggleLink.innerHTML = 'Already have an account? <a href="javascript:void(0)" onclick="toggleForms()">Sign In</a>';
+            }
+        }
     </script>
 </body>
 </html>

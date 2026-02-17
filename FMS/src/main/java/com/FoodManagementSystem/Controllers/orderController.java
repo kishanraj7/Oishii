@@ -5,7 +5,7 @@ import com.FoodManagementSystem.Models.Order;
 import com.FoodManagementSystem.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 @RestController
 @RequestMapping("/orders")
 public class orderController {

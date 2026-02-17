@@ -9,12 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 @RestController
 @RequestMapping("/users")
 public class UserController {
     @Autowired
     private UserService userService;
+
     //For Using in UI You Must First Create user Class Object
     @PostMapping("/register")
     public ResponseEntity<String> Register(@Valid @RequestBody User user){
@@ -37,6 +38,7 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(userProfile);
     }
+    
     @GetMapping("/getAllDetails")
     public ResponseEntity<List<User>> getAll(){
         List<User> p1=userService.getAllDetails();

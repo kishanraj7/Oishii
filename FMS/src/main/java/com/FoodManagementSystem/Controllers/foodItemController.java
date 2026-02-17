@@ -4,7 +4,7 @@ import com.FoodManagementSystem.Models.FoodItem;
 import com.FoodManagementSystem.Service.foodItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 @RestController
 @RequestMapping("/food-items")
 public class foodItemController {

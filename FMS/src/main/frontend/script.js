@@ -23,8 +23,8 @@ function showSlides() {
   // Change image every 3 seconds
   setTimeout(showSlides, 3000); 
 }
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Selectors
     const searchLink = document.querySelector('a[href="/search"]');
     const cartLink = document.querySelector('a[href="/cart"]');
     const searchOverlay = document.getElementById('search-overlay');
@@ -69,4 +69,42 @@ document.addEventListener('DOMContentLoaded', () => {
             hideCart();
         }
     });
+    
+});
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* ---------------- PROFILE ---------------- */
+
+    const navUsername = document.getElementById("nav-username");
+    const profileToggle = document.getElementById("profile-toggle");
+    const profileDropdown = document.getElementById("profile-dropdown");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    const user = localStorage.getItem("leafboxUser");
+
+    if (user && navUsername) {
+        navUsername.textContent = user;
+    }
+
+    if (profileToggle) {
+        profileToggle.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const currentUser = localStorage.getItem("leafboxUser");
+
+            if (!currentUser) {
+                window.location.href = "login.html";
+            } else {
+                profileDropdown.classList.toggle("active");
+            }
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+            localStorage.removeItem("leafboxUser");
+            window.location.reload();
+        });
+    }
+
 });

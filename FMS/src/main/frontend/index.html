@@ -19,7 +19,18 @@
                 <li><a href="/"><i class="fa-solid fa-house"></i> Home</a></li>
                 <li><a href="/search"><i class="fa-solid fa-magnifying-glass"></i> Search</a></li>
                 <li><a href="help.html"><i class="fa-solid fa-circle-info"></i> Help</a></li>
-                <li><a href="login.html"><i class="fa-regular fa-user"></i> Sign In</a></li>
+                <li class="profile-menu">
+                    <a href="#" id="profile-toggle">
+                        <i class="fa-regular fa-user"></i>
+                        <span id="nav-username">Sign In</span>
+                    </a>
+                    <div class="dropdown" id="profile-dropdown">
+                        <a href="#">My Profile</a>
+                        <a href="#">Orders</a>
+                        <a href="#" id="logout-btn">Logout</a>
+                    </div>
+                </li>
+
                 <li><a href="/cart"><i class="fa-solid fa-cart-arrow-down"></i> Cart</a></li>
                 </div>
             </ul>
@@ -115,6 +126,8 @@
     </div>
 </div>
 <div id="body-overlay" class="body-overlay"></div>
+
+
 
 
     <script src="script.js"></script>
