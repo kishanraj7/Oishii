@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leafbox Partner Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins', sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#eaf6ef,#f8fbf9);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.container{
+    width:95%;
+    max-width:1000px;
+    background:white;
+    display:flex;
+    border-radius:15px;
+    overflow:hidden;
+    box-shadow:0 20px 50px rgba(0,0,0,0.1);
+}
+
+.left{
+    background:#1f8a4d;
+    color:white;
+    flex:1;
+    padding:60px 40px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.left h1{
+    font-size:32px;
+    margin-bottom:20px;
+}
+
+.left p{
+    line-height:1.6;
+}
+
+.right{
+    flex:1.5;
+    padding:50px 40px;
+}
+
+.tabs{
+    display:flex;
+    margin-bottom:30px;
+}
+
+.tab{
+    flex:1;
+    text-align:center;
+    padding:12px;
+    cursor:pointer;
+    font-weight:600;
+    border-bottom:3px solid transparent;
+}
+
+.active{
+    border-bottom:3px solid #1f8a4d;
+    color:#1f8a4d;
+}
+
+form{
+    display:none;
+}
+
+form.active-form{
+    display:block;
+}
+
+.input-group{
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:500;
+}
+
+input, select, textarea{
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    outline:none;
+    font-size:14px;
+}
+
+input:focus, select:focus, textarea:focus{
+    border-color:#1f8a4d;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:8px;
+    background:#1f8a4d;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    font-size:15px;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+@media(max-width:768px){
+    .container{
+        flex-direction:column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    
+    <div class="left">
+        <h1>🌿 Leafbox Partner</h1>
+        <p>Manage your restaurant, track orders, and grow your business with powerful tools and real-time insights.</p>
+    </div>
+
+    <div class="right">
+        <div class="tabs">
+            <div class="tab active" onclick="showLogin()">Login</div>
+            <div class="tab" onclick="showRegister()">Create Restaurant</div>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <form id="loginForm" class="active-form">
+            <div class="input-group">
+                <label>Restaurant ID</label>
+                <input type="text" name="restaurantId" placeholder="Enter your restaurant ID" required>
+            </div>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <!-- CREATE RESTAURANT FORM -->
+        <form id="registerForm" enctype="multipart/form-data">
+    
+    <div class="input-group">
+        <label>Restaurant Name</label>
+        <input type="text" name="restaurantName" placeholder="Enter restaurant name" required>
+    </div>
+
+    <div class="input-group">
+        <label>Cuisine</label>
+        <select name="cusine" required>
+            <option value="">Select Cuisine</option>
+            <option>North - Indian</option>
+            <option>South - Indian</option>
+            <option>Chinese</option>
+            <option>Italian</option>
+            <option>Fast Food</option>
+            <option>Multi Cuisine</option>
+            <option>Burgers</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label>Restaurant Image</label>
+        <input type="file" name="image" accept="image/*" required>
+    </div>
+
+    <div class="input-group">
+        <label>Address</label>
+        <textarea name="restaurantAddress" rows="3" placeholder="Enter full address" required></textarea>
+    </div>
+
+    <div class="input-group">
+        <label>Phone Number</label>
+        <input type="tel" name="restaurantPhoneNo" placeholder="Enter phone number" required>
+    </div>
+
+    <button type="submit">Create Restaurant</button>
+</form>
+    </div>
+
+</div>
+
+<script>
+function showLogin(){
+    document.getElementById("loginForm").classList.add("active-form");
+    document.getElementById("registerForm").classList.remove("active-form");
+    document.querySelectorAll(".tab")[0].classList.add("active");
+    document.querySelectorAll(".tab")[1].classList.remove("active");
+}
+
+function showRegister(){
+    document.getElementById("registerForm").classList.add("active-form");
+    document.getElementById("loginForm").classList.remove("active-form");
+    document.querySelectorAll(".tab")[1].classList.add("active");
+    document.querySelectorAll(".tab")[0].classList.remove("active");
+}
+document.getElementById("registerForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const form = document.getElementById("registerForm");
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch("http://localhost:8080/restaurants/createRestaurant", {
+            method: "POST",
+            body: formData
+        });
+
+        if (response.ok) {
+            const result = await response.text();
+            alert("Restaurant Created Successfully!");
+            form.reset();
+            localStorage.setItem("restaurantId", result);
+            window.location.href = "partner.html";
+        } else {
+            alert("Failed to create restaurant");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Server error");
+    }
+});
+document.getElementById("loginForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const restaurantId = document.querySelector("input[name='restaurantId']").value;
+
+    try {
+        const response = await fetch(`http://localhost:8080/restaurants/find/${restaurantId}`, {
+            method: "GET"
+        });
+
+        if (response.ok) {
+            localStorage.setItem("restaurantId", restaurantId);
+            window.location.href = "partner.html";
+        } else {
+            alert("Invalid Restaurant ID");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Server error");
+    }
+
+});
+</script>
+
+</body>
+</html>

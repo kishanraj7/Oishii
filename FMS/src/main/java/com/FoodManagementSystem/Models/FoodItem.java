@@ -3,6 +3,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,9 +18,11 @@ public class FoodItem {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer foodId;
-    private Integer restaurantId;
+    private Integer rid;
+    @NotBlank(message = "Name Can not Be Empty")
     private String name;
     private String description;
+    @NotBlank(message = "Price Can't Be Empty")
     private double price;
     private boolean availability;
 }

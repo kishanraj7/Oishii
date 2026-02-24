@@ -108,3 +108,49 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
+
+/* ---------------- RESTAURANTS ---------------- */
+document.addEventListener("DOMContentLoaded", loadRestaurants);
+
+    function loadRestaurants() {
+        fetch("http://localhost:8080/restaurants/load-restaurant")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to load restaurants");
+                }
+                return response.json();
+            })
+            .then(data => {
+                displayRestaurants(data);
+            })
+            .catch(error => {
+                document.getElementById("message").innerText = error.message;
+            });
+    }
+
+    function displayRestaurants(restaurants) {
+    const container = document.getElementById("restaurantList");
+    container.innerHTML = "";
+
+    restaurants.forEach(restaurant => {
+        const card = document.createElement("div");
+        card.className = "restaurant-card";
+
+        // Build correct image URL
+        const imageUrl = restaurant.imageUrl
+            ? `http://localhost:8080/uploads/${restaurant.imageUrl}`
+            : "https://via.placeholder.com/300x200?text=No+Image";
+
+        card.innerHTML = `
+            <img style="width:100%; height:250px; object-fit:cover;" src="${imageUrl}" 
+                 alt="${restaurant.restaurantName}" 
+                 class="restaurant-image">
+
+            <h3>${restaurant.restaurantName}</h3>
+            <p><strong>Cuisine:</strong> ${restaurant.cusine ?? "N/A"}</p>
+            <p><strong>Address:</strong> ${restaurant.restaurantAddress ?? "N/A"}</p>
+        `;
+
+        container.appendChild(card);
+    });
+}

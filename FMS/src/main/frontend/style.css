@@ -228,3 +228,63 @@ nav ul li a {
 .dropdown.active {
     display: flex;
 }
+.load-reatsurant {
+    position: relative; /* REQUIRED */
+    padding: 0 40px;
+}
+ .restaurant-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .restaurant-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .restaurant-card h3 {
+            margin: 0 0 10px;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+        }
+        footer {
+            background-color: rgb(240, 240, 245);
+            height: auto;
+            width: 100%;
+        }
+    .f1{
+        height: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;  
+    }
+    .f2-span{
+        margin-top: 100px;
+        display: flex;
+        justify-content: center;
+        gap: 80px;
+        padding-bottom: 100px;
+    }
+    .f3 ul{
+        list-style: none;
+    }
+    .f3 ul li{
+        margin-top: 20px;
+    }
+    .f3 ul li a{
+        text-decoration: none;  
+        color: rgb(130, 129, 129);      
+    }
+    .socials a i{
+        margin-top: 10px;
+        color: rgb(81, 80, 80);
+        padding-left: 5px;
+    }

@@ -19,13 +19,7 @@ public class Resturant {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer rid;
 
-    private Integer ownerId;
-    @PrePersist
-    public void generateOwnerId() {
-        if (this.ownerId == null) {
-            this.ownerId = (int) (Math.random() * 100000);
-        }
-    }
+    private String imageUrl;
 
     @NotBlank(message = "Restaurant name is mandatory")
     private String restaurantName;

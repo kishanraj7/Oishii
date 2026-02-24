@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 @Repository
 public interface ResturantRepo extends JpaRepository<Resturant,Integer> {
-    List<Resturant> findByOwnerId(Integer ownerId);
     boolean existsByRestaurantName(String restaurantName);
     Resturant findByRid(Integer rid);
     Resturant deleteByRid(Integer rid);

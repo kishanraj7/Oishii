@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leafbox Partner Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://kit.fontawesome.com/e3890e647b.js" crossorigin="anonymous"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins', sans-serif;
+}
+
+body{
+    display:flex;
+    height:100vh;
+    background:#f4f6f9;
+}
+
+/* Sidebar */
+.sidebar{
+    width:250px;
+    background:#1f8a4d;
+    color:white;
+    padding:30px 20px;
+}
+
+.sidebar h2{
+    margin-bottom:40px;
+}
+
+.sidebar button{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:white;
+    color:#1f8a4d;
+    font-weight:600;
+}
+
+.sidebar button:hover{
+    background:#e0f2e8;
+}
+
+/* Main Content */
+.main{
+    flex:1;
+    padding:40px;
+    overflow-y:auto;
+}
+
+.section{
+    display:none;
+}
+
+.section.active{
+    display:block;
+}
+
+.profile-card{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    max-width:600px;
+}
+
+.profile-card img{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    object-fit:cover;
+    margin-bottom:20px;
+}
+
+.profile-card p{
+    margin-bottom:10px;
+}
+
+input, textarea{
+    width:100%;
+    padding:10px;
+    margin-bottom:15px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+button.action{
+    background:#1f8a4d;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+button.action:hover{
+    opacity:0.9;
+}
+
+.menu-form{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    max-width:600px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <h2>🌿 Leafbox</h2>
+    <button onclick="showSection('profile')">Profile</button>
+    <button onclick="showSection('menu')">Menu</button>
+    <button onclick="showSection('help')">Help</button>
+    <button onclick="logout()">Logout</button>
+    
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+    <!-- Profile Section -->
+    <div id="profile" class="section active">
+        <div class="profile-card">
+            <img id="profileImage" src="" alt="Restaurant Logo">
+            <p><strong>ID : </strong> <span id="restaurantId"></span></p>
+            <p><strong>Name : </strong> <span id="restaurantName"></span></p>
+            <p><strong>Cuisine : </strong> <span id="restaurantCuisine"></span></p>
+            <p><strong>Address :  </strong> <span id="restaurantAddress"></span></p>
+            <p><strong>Phone : </strong> <span id="restaurantPhone"></span></p>
+
+            <button class="action" onclick="enableEdit()">Update Profile</button>
+        </div>
+    </div>
+    <!-- Update Profile Form -->
+<div id="updateForm" class="profile-card" style="display:none;">
+    <h3>Update Profile</h3>
+    <input type="text" id="updateName" placeholder="Restaurant Name">
+    <input type="text" id="updateCuisine" placeholder="Cuisine">
+    <input type="text" id="updateAddress" placeholder="Address">
+    <input type="text" id="updatePhone" placeholder="Phone">
+    <input type="file" id="updateImage" accept="image/*">
+    <button class="action" onclick="submitUpdate()">Save Changes</button>
+    <button class="action" style="background:#ccc;color:#333;margin-top:10px;" onclick="cancelUpdate()">Cancel</button>
+</div>
+
+    <!-- Menu Section -->
+    <div id="menu" class="section">
+
+        <h2 style="margin-bottom:20px;">Your Menu</h2>
+
+        <div id="menuList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;"></div>
+
+        <!-- Floating Add Button -->
+        <button onclick="openModal()" 
+            style="position:fixed;bottom:40px;right:40px;
+            width:60px;height:60px;border-radius:50%;
+            font-size:30px;background:#1f8a4d;color:white;
+            border:none;cursor:pointer;">+</button>
+    </div>
+
+    <!-- Help Section -->
+    <div id="help" class="section">
+        <h2>Help & Support</h2>
+
+    <!-- Search Bar -->
+    <input
+        id="helpSearch"
+        type="text"
+        placeholder="Search help topics..."
+        oninput="filterHelp()"
+        style="margin:20px 0; padding:10px; width:100%; border-radius:8px; border:1px solid #ccc;"
+    >
+
+    <!-- Help Categories -->
+    <div id="helpCategories" style="display:flex; gap:15px; margin-bottom:20px;">
+        <button class="action" onclick="loadHelpCategory('orders')">Orders</button>
+        <button class="action" onclick="loadHelpCategory('profile')">Account/Profile</button>
+        <button class="action" onclick="loadHelpCategory('payment')">Payment</button>
+        <button class="action" onclick="loadHelpCategory('support')">Contact Support</button>
+        <button class="action" style="background:#ff5722;" onclick="openContactForm()">Contact Support</button>
+    </div>
+
+    <!-- Help Items List -->
+    <div id="helpItems" style="background:white; padding:20px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.08);">
+        <p>Select a category above to view help content.</p>
+    </div>
+
+    <!-- Detailed Help Content -->
+    <div id="helpDetail" style="display:none; margin-top:20px; background:white; padding:20px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.08);">
+    </div>
+</div>
+</div>    
+
+</div>
+<!-- Add Item Modal -->
+<div id="itemModal" 
+     style="display:none;position:fixed;top:0;left:0;width:100%;
+     height:100%;background:rgba(0,0,0,0.5);
+     justify-content:center;align-items:center;">
+
+    <div style="background:white;padding:30px;border-radius:12px;width:400px;position:relative;">
+
+        <span onclick="closeModal()" 
+              style="position:absolute;right:15px;top:10px;
+              cursor:pointer;font-size:20px;">×</span>
+
+        <h3 style="margin-bottom:15px;">Add Menu Item</h3>
+
+        <input type="text" id="itemName" placeholder="Item Name" required>
+        <input type="number" id="itemPrice" placeholder="Price" required>
+        <textarea id="itemDescription" placeholder="Description"></textarea>
+        <input type="file" id="itemImage" accept="image/*">
+
+        <button class="action" onclick="addMenuItem()">Add Item</button>
+
+    </div>
+</div>
+
+<script src="partner.js"></script>
+</body>
+</html>
