@@ -197,8 +197,7 @@
                 return;
             }
 
-            try {
-                // Send login request to backend
+                try {
                 const params = new URLSearchParams();
                 params.append("userName", username);
                 params.append("pass", password);
@@ -208,11 +207,16 @@
                 });
 
                 if (response.ok) {
-                    // Save username in localStorage after successful login
-                    localStorage.setItem("leafboxUser", username);
 
-                    // Redirect to homepage
+                    const data = await response.json();
+
+                    localStorage.setItem("customerId", data.userId);
+                    localStorage.setItem("username", data.username);
+
+                    console.log("Stored ID:", data.userId);
+
                     window.location.href = "index.html";
+
                 } else {
                     const errorText = await response.text();
                     alert("Login failed: " + errorText);

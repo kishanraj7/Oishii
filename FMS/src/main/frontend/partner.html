@@ -112,6 +112,9 @@ button.action:hover{
     max-width:600px;
     box-shadow:0 10px 30px rgba(0,0,0,0.08);
 }
+ul li{
+    list-style: none;
+}
 
 </style>
 </head>
@@ -123,6 +126,7 @@ button.action:hover{
     <h2>🌿 Leafbox</h2>
     <button onclick="showSection('profile')">Profile</button>
     <button onclick="showSection('menu')">Menu</button>
+    <button onclick="showSection('orders')">Orders</button>
     <button onclick="showSection('help')">Help</button>
     <button onclick="logout()">Logout</button>
     
@@ -170,6 +174,27 @@ button.action:hover{
             font-size:30px;background:#1f8a4d;color:white;
             border:none;cursor:pointer;">+</button>
     </div>
+    <!-- Orders Section -->
+    <div id="orders" class="section">
+    <h2 style="margin-bottom:20px;">Manage Orders</h2>
+
+    <!-- Order Status Tabs -->
+    <div style="display:flex;gap:15px;margin-bottom:25px;">
+        <button class="action" onclick="showOrderTab('received')">Received</button>
+        <button class="action" onclick="showOrderTab('preparing')">Preparing</button>
+        <button class="action" onclick="showOrderTab('delivered')">Delivered</button>
+        <button style="background-color: red;" class="action" onclick="showOrderTab('cancelled')">Cancelled</button>
+        <button class="action" onclick="showOrderTab('past')">Past Orders</button>
+    </div>
+
+    <!-- Order Lists -->
+    <div id="received" class="order-tab"></div>
+    <div id="preparing" class="order-tab" style="display:none;"></div>
+    <div id="delivered" class="order-tab" style="display:none;"></div>
+    <div id="cancelled" class="order-tab" style="display:none;"></div>
+    <div id="past" class="order-tab" style="display:none;"></div>
+
+</div>
 
     <!-- Help Section -->
     <div id="help" class="section">
@@ -224,7 +249,7 @@ button.action:hover{
         <textarea id="itemDescription" placeholder="Description"></textarea>
         <input type="file" id="itemImage" accept="image/*">
 
-        <button class="action" onclick="addMenuItem()">Add Item</button>
+        <button class="action" onclick="saveMenuItem()">Save Item</button>
 
     </div>
 </div>

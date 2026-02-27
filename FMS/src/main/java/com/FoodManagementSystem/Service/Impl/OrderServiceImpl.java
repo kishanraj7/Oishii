@@ -1,90 +1,105 @@
 package com.FoodManagementSystem.Service.Impl;
 
-import com.FoodManagementSystem.Models.FoodItem;
-import com.FoodManagementSystem.Models.Order;
+import com.FoodManagementSystem.Models.*;
 import com.FoodManagementSystem.Repositories.OrderRepo;
 import com.FoodManagementSystem.Repositories.ResturantRepo;
 import com.FoodManagementSystem.Repositories.UserRepo;
 import com.FoodManagementSystem.Repositories.foodItemsRepo;
 import com.FoodManagementSystem.Service.OrderService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
+import java.util.ArrayList;
 import java.util.List;
+
 @Service
 public class OrderServiceImpl implements OrderService {
+
     @Autowired
     private OrderRepo orderRepo;
     @Autowired
-    private foodItemsRepo foodItems;
+    private foodItemsRepo foodItemRepo;
     @Autowired
-    private UserRepo user;
+    private UserRepo userRepo;
     @Autowired
-    private ResturantRepo restro;
+    private ResturantRepo restroRepo;
+
+    @Transactional
     @Override
-    public void placeOrder(Order order) {
-        orderRepo.save(order);
-        System.out.println("Order Placed SuccessFully");
-    }
-    public double calculateTotalPrice() {
-        Order order = null;
-        double total = 0;
-        List<FoodItem> ItemList = foodItems.findAll();
-        if (order.getFoodItems().equals(ItemList)) {
-            for (FoodItem item : ItemList) {
-                total += item.getPrice();
-            }
-            order.setTotalPrice(total);
+    public Order placeOrder(
+            Integer customerId,
+            Integer restaurantId,
+            List<Integer> foodIds,
+            List<Integer> quantities,
+            String deliveryAddress
+    ) {
+
+        if (foodIds.size() != quantities.size()) {
+            throw new RuntimeException("Food IDs and quantities size mismatch");
         }
-        return order.getTotalPrice();
+
+        User customer = userRepo.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        Resturant restaurant = restroRepo.findById(restaurantId)
+                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+
+        Order order = new Order();
+        order.setCustomer(customer);
+        order.setRestaurant(restaurant);
+        order.setDeliveryAddress(deliveryAddress);
+        order.setStatus(OrderStatus.RECEIVED);
+        order.setPaymentStatus(PaymentStatus.PENDING);
+        order.setOrderTime(LocalDateTime.now());
+
+        double totalPrice = 0;
+
+        for (int i = 0; i < foodIds.size(); i++) {
+
+            FoodItem food = foodItemRepo.findById(foodIds.get(i))
+                    .orElseThrow(() -> new RuntimeException("Food not found"));
+
+            int quantity = quantities.get(i);
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setFoodItem(food);
+            orderItem.setQuantity(quantity);
+            orderItem.setPrice(food.getPrice() * quantity);
+
+            totalPrice += orderItem.getPrice();
+
+            // ✅ Use helper method (VERY IMPORTANT)
+            order.addOrderItem(orderItem);
+        }
+
+        order.setTotalPrice(totalPrice);
+
+        return orderRepo.save(order);
     }
 
     @Override
-    public void getOrdersByCustomerId(Integer customerId) {
-        List<Order> orders = orderRepo.findAll();
-        for (Order order : orders) {
-            if (user.existsById(customerId)) {
-                System.out.println("Order ID: " + order.getOrderId());
-                System.out.println("Food Items Ordered: " + order.getFoodItems());
-                System.out.println("Restaurant ID: " + order.getRestaurantId());
-                System.out.println("Grand Total: " + calculateTotalPrice());
-                System.out.println("Order Status: " + order.getStatus());
-                System.out.println("-------------------------------------");
-            } else {
-                System.out.println("No Orders Found for this Customer ID");
-            }
-        }
+    public List<Order> getOrdersByCustomerId(Integer customerId) {
+        User customer = userRepo.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+        return orderRepo.findByCustomer(customer);
     }
 
     @Override
-    public void getOrdersByRestaurantId(Integer restaurantId) {
-        List<Order> orders = orderRepo.findAll();
-        for (Order order : orders) {
-            if (restro.existsByRid(restaurantId)) {
-                System.out.println("Order ID: " + order.getOrderId());
-                System.out.println("Customer ID: " + order.getCustomerId());
-                System.out.println("Food Items Ordered: " + order.getFoodItems());
-                System.out.println("Grand Total: " + order.getTotalPrice());
-                System.out.println("Order Status: " + order.getStatus());
-                System.out.println("---------------------------");
-            }
-            else {
-                System.out.println("No Orders Found For This Restaurant ID");
-            }
-        }
+    public List<Order> getOrdersByRestaurantId(Integer restaurantId) {
+        Resturant restaurant = restroRepo.findById(restaurantId)
+                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+        return orderRepo.findByRestaurant(restaurant);
     }
 
+
     @Override
-    public void updateOrderStatus(Integer orderId, String status) {
-        if(orderRepo.existsByOrderId(orderId)){
-            Order order = orderRepo.findById(orderId).orElse(null);
-            if (order != null) {
-                order.setStatus(status);
-                orderRepo.save(order);
-                System.out.println("Order status updated successfully");
-            }
-        } else {
-            System.out.println("Order ID not found");
-        }
+    public Order updateOrderStatus(Integer orderId, OrderStatus status) {
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        order.setStatus(status);
+        return orderRepo.save(order);
     }
 }

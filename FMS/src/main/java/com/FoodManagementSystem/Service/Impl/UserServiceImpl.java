@@ -21,17 +21,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String login(String userName, String password) {
-        User user = userRepo.findByUsername(userName);
-        if(user != null) {
-            if(user.getPassword().equals(password)) {
-                return user.getRole().equalsIgnoreCase("ADMIN") ? "Successfully Login As ADMIN" : "Successfully Login";
-            } else {
-                return "Invalid Password Entered";
-            }
-        } else {
-            return "Invalid User Name";
+    public User login(String username, String password) {
+
+        User user = userRepo.findByUsername(username);
+
+        if (user != null && user.getPassword().equals(password)) {
+            return user;
         }
+
+        return null;
     }
 
     @Override

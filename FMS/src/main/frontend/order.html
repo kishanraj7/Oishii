@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Orders</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 40px;
+            font-size: 24px;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+        }
+
+        h2 {
+            margin-top: 40px;
+            color: #444;
+        }
+
+        .order-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+            transition: 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .restaurant-name {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .order-time {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .status {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .active-status {
+            background: #fc8019;
+        }
+
+        .delivered-status {
+            background: #2ecc71;
+        }
+
+        .cancelled-status {
+            background: #e74c3c;
+        }
+
+        .divider {
+            height: 1px;
+            background: #eee;
+            margin: 15px 0;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+            color: #555;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #777;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="header">🧾 My Orders</div>
+
+<div class="container">
+
+    <h2>Active Orders</h2>
+    <div id="activeOrders"></div>
+
+    <h2>Past Orders</h2>
+    <div id="pastOrders"></div>
+
+</div>
+
+<script>
+
+const customerId = localStorage.getItem("customerId");
+
+async function loadOrders() {
+
+    const response = await fetch(`http://localhost:8080/orders/customer/${customerId}`);
+
+    if(!response.ok){
+        alert("Failed to load orders");
+        return;
+    }
+
+    const orders = await response.json();
+
+    const activeDiv = document.getElementById("activeOrders");
+    const pastDiv = document.getElementById("pastOrders");
+
+    activeDiv.innerHTML = "";
+    pastDiv.innerHTML = "";
+
+    if(orders.length === 0){
+        activeDiv.innerHTML = "<div class='empty'>No orders yet 🍔</div>";
+        return;
+    }
+
+    orders.forEach(order => {
+
+    console.log(order); // keep this for debugging
+
+    let total = order.totalPrice || 0;
+    let itemsHTML = "";
+
+    if(order.orderItems && order.orderItems.length > 0){
+
+        order.orderItems.forEach(item => {
+
+            const qty = item.quantity || 1;
+            const price = item.price || 0;
+
+            itemsHTML += `
+                <div class="item">
+                    <div>${item.foodItem?.foodName || "Food Item"} x ${qty}</div>
+                    <div>₹${price * qty}</div>
+                </div>
+            `;
+        });
+
+    } else {
+        itemsHTML = `<div style="color:#888;">No items found</div>`;
+    }
+
+    const card = document.createElement("div");
+    card.classList.add("order-card");
+
+    const status = order.status;
+    let statusClass = "active-status";
+
+    if(status === "DELIVERED"){
+        statusClass = "delivered-status";
+    }
+    if(status === "CANCELLED"){
+        statusClass = "cancelled-status";
+    }
+
+    const orderDate = order.orderTime
+        ? new Date(order.orderTime).toLocaleString()
+        : "N/A";
+
+    card.innerHTML = `
+        <div class="top">
+            <div>
+                <div class="restaurant-name">
+                    ${order.restaurant?.restaurantName || "Restaurant"}
+                </div>
+                <div class="order-time">
+                    Order #${order.orderId} • ${orderDate}
+                </div>
+            </div>
+            <div class="status ${statusClass}">
+                ${status}
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        ${itemsHTML}
+
+        <div class="divider"></div>
+
+        <div class="footer">
+            <div>Total</div>
+            <div>₹${total}</div>
+        </div>
+    `;
+
+    if(status === "DELIVERED" || status === "CANCELLED"){
+        pastDiv.appendChild(card);
+    } else {
+        activeDiv.appendChild(card);
+    }
+
+});
+}
+
+loadOrders();
+
+</script>
+
+</body>
+</html>

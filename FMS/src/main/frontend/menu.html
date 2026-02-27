@@ -1,11 +1,436 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu | Leafbox</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restaurant Menu</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://kit.fontawesome.com/e3890e647b.js" crossorigin="anonymous"></script>
+<style>
+#restaurantInfo{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    margin-bottom:30px;
+}
+#restaurantInfo img{width:120px;height:120px;border-radius:12px;object-fit:cover;}
+#menuGrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:20px;}
+#menuList {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.menu-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.menu-left {
+    flex: 1;
+}
+
+.menu-left h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.menu-left p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.menu-left .price {
+    font-weight: 600;
+    margin-top: 8px;
+    display: block;
+}
+
+.menu-right {
+    text-align: center;
+}
+
+.menu-right img {
+    width: 120px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.add-btn {
+    margin-top: 0px;
+    background: white;
+    color: #1ba672;
+    border: 1px solid #1ba672;
+    padding: 6px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.add-btn:hover {
+    background: #1ba672;
+    color: white;
+}
+/* CART ITEM STYLE */
+.cart-content div {
+    background: #f9f9f9;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+/* Quantity Control */
+.cart-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.qty-btn {
+    background: #1ba672;
+    color: white;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.qty-btn:hover {
+    background: #158a5c;
+}
+
+.qty-number {
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Remove Button */
+.remove-btn {
+    background: #ff4d4d;
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: auto;
+    transition: 0.2s;
+}
+
+.remove-btn:hover {
+    background: #cc0000;
+}
+</style>
 </head>
 <body>
-    
+     <header>
+        <nav class="navbar">
+            <ul>
+                <li><div class="logo">
+                    <img src="assets/leafbox.png" alt="LeafBox Logo">
+                </div></li>
+                <div class="option">
+                <li><a href="index.html"><i class="fa-solid fa-house"></i> Home</a></li>
+                <li><a href="/search"><i class="fa-solid fa-magnifying-glass"></i> Search</a></li>
+                <li><a href="help.html"><i class="fa-solid fa-circle-info"></i> Help</a></li>
+                <li class="profile-menu">
+                    <a href="#" id="profile-toggle">
+                        <i class="fa-regular fa-user"></i>
+                        <span id="nav-username">Sign In</span>
+                    </a>
+                    <div class="dropdown" id="profile-dropdown">
+                        <a href="#">My Profile</a>
+                        <a href="#">Orders</a>
+                        <a href="#" id="logout-btn">Logout</a>
+                    </div>
+                </li>
+
+                <li><a href="#" id="cart-toggle"><i class="fa-solid fa-cart-arrow-down"></i> Cart</a></li>
+                </div>
+            </ul>
+        </nav>
+    </header>
+
+<div id="restaurantInfo">
+    <img id="restaurantLogo" src="assets/leafbox.png" alt="Logo">
+    <div>
+        <h2 id="restaurantTitle">Restaurant Name</h2>
+        <p id="restaurantCuisine">Cuisine Type</p>
+        <p id="restaurantAddress">Restaurant Address</p>
+    </div>
+</div>
+
+<div id="menuList"></div>
+
+<div id="search-overlay" class="search-overlay">
+    <div class="search-container">
+        <input type="text" placeholder="Search for organic meals..." id="search-input">
+        <button id="close-search"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    </div>
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h2>Your Cart</h2>
+            <button id="close-cart"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="cart-content">
+            <p>Your cart is empty. Let's add some green!</p>
+        </div>
+        <div class="cart-footer">
+            <button class="checkout-btn">Checkout</button>
+        </div>
+    </div>
+    <div id="body-overlay" class="body-overlay"></div>
+
+<script>
+/* ================================
+   GLOBAL
+================================ */
+const restaurantId = localStorage.getItem("restaurantId");
+
+/* ================================
+   USERNAME
+================================ */
+function loadUsername() {
+    const username = localStorage.getItem("username");
+    const profileToggle = document.getElementById("profile-toggle");
+
+    if (username) {
+        document.getElementById("nav-username").innerText = username;
+    } else {
+        document.getElementById("nav-username").innerText = "Sign In";
+        profileToggle.addEventListener("click", function () {
+            window.location.href = "login.html";
+        });
+    }
+}
+
+/* ================================
+   LOAD RESTAURANT
+================================ */
+if (!restaurantId) {
+    alert("No restaurant selected");
+    window.location.href = "index.html";
+}
+
+async function loadRestaurantMenu() {
+    try {
+        const resResp = await fetch(`http://localhost:8080/restaurants/find/${restaurantId}`);
+        const res = await resResp.json();
+
+        document.getElementById("restaurantLogo").src =
+            res.imageUrl ? `http://localhost:8080/uploads/${res.imageUrl}` : "assets/leafbox.png";
+        document.getElementById("restaurantTitle").innerText = res.restaurantName;
+        document.getElementById("restaurantCuisine").innerText = res.cusine;
+        document.getElementById("restaurantAddress").innerText = res.restaurantAddress;
+
+        const menuResp = await fetch(`http://localhost:8080/food-items/restaurant/${restaurantId}`);
+        const items = await menuResp.json();
+
+        const menuList = document.getElementById("menuList");
+        menuList.innerHTML = "";
+
+        items.forEach(item => {
+            const row = document.createElement("div");
+            row.className = "menu-row";
+
+            row.innerHTML = `
+                <div class="menu-left">
+                    <h3>${item.name}</h3>
+                    <p>${item.description || ''}</p>
+                    <span class="price">₹${item.price}</span>
+                </div>
+                <div class="menu-right">
+                    <img src="${item.foodImage ? `http://localhost:8080/uploads/${item.foodImage}` : 'assets/leafbox.png'}">
+                    <br>
+                    <button class="add-btn">Add to Cart</button>
+                </div>
+            `;
+
+            // Pass restaurantId to addToCart
+            row.querySelector(".add-btn").addEventListener("click", () => {
+                addToCart(item.foodId, item.name, item.price, restaurantId);
+            });
+
+            menuList.appendChild(row);
+        });
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById("menuList").innerHTML =
+            "<p style='color:red;'>Failed to load menu.</p>";
+    }
+}
+
+/* ================================
+   CART FUNCTIONS
+================================ */
+
+function getCart() {
+    return JSON.parse(localStorage.getItem("cart")) || [];
+}
+
+function saveCart(cart) {
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+/* Add item to cart */
+function addToCart(id, name, price, restaurantId) {
+    let cart = getCart();
+
+    // Check if item from the same restaurant already exists
+    const existingItem = cart.find(i => i.foodId === id && i.restaurantId == restaurantId);
+
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({
+            foodId: id,
+            restaurantId: restaurantId, // store restaurant id
+            name: name,
+            price: Number(price),
+            quantity: 1
+        });
+    }
+
+    saveCart(cart);
+    renderCart();
+}
+
+function removeFromCart(foodId, restaurantId) {
+    let cart = getCart();
+    cart = cart.filter(i => !(i.foodId === foodId && i.restaurantId == restaurantId));
+    saveCart(cart);
+    renderCart();
+}
+
+function updateQuantity(foodId, restaurantId, change) {
+    let cart = getCart();
+    const item = cart.find(i => i.foodId === foodId && i.restaurantId == restaurantId);
+    if (!item) return;
+
+    item.quantity += change;
+
+    if (item.quantity <= 0) {
+        cart = cart.filter(i => !(i.foodId === foodId && i.restaurantId == restaurantId));
+    }
+
+    saveCart(cart);
+    renderCart();
+}
+/* Render Cart Sidebar */
+function renderCart() {
+    const cart = getCart();
+    const cartContent = document.querySelector(".cart-content");
+
+    if (cart.length === 0) {
+        cartContent.innerHTML = "<p>Your cart is empty. Let's add some green!</p>";
+        return;
+    }
+
+    cartContent.innerHTML = "";
+    let total = 0;
+
+    cart.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+
+        const div = document.createElement("div");
+        div.innerHTML = `
+            <strong>${item.name}</strong>
+            <p>₹${item.price} × ${item.quantity} = ₹${itemTotal}</p>
+
+            <div class="cart-controls">
+                <button class="qty-btn" onclick="updateQuantity(${item.foodId}, '${item.restaurantId}', -1)">−</button>
+                <span class="qty-number">${item.quantity}</span>
+                <button class="qty-btn" onclick="updateQuantity(${item.foodId}, '${item.restaurantId}', 1)">+</button>
+                <button class="remove-btn" onclick="removeFromCart(${item.foodId}, '${item.restaurantId}')">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+            <hr>
+        `;
+        cartContent.appendChild(div);
+    });
+
+    cartContent.innerHTML += `<h3>Total: ₹${total}</h3>`;
+}
+
+/* ================================
+   CHECKOUT
+================================ */
+
+document.querySelector(".checkout-btn").addEventListener("click", function () {
+    const userId = localStorage.getItem("userId");
+    const cart = getCart();
+
+    if (!userId) {
+        localStorage.setItem("redirectAfterLogin", "menu.html");
+        window.location.href = "login.html";
+        return;
+    }
+
+    if (cart.length === 0) {
+        alert("Cart is empty!");
+        return;
+    }
+
+    // All items should be from the same restaurant
+    const restaurantId = cart[0].restaurantId;
+    const orderItems = cart.map(i => ({
+        foodId: i.foodId,
+        quantity: i.quantity
+    }));
+
+    const orderData = {
+        userId: userId,
+        restaurantId: restaurantId,
+        items: orderItems
+    };
+
+    localStorage.setItem("checkoutData", JSON.stringify(orderData));
+    window.location.href = "checkout.html";
+});
+
+/* ================================
+   CART SIDEBAR
+================================ */
+
+document.getElementById("cart-toggle").addEventListener("click", function () {
+    document.getElementById("cart-sidebar").classList.add("active");
+    document.getElementById("body-overlay").classList.add("active");
+    renderCart();
+});
+
+document.getElementById("close-cart").addEventListener("click", closeCart);
+document.getElementById("body-overlay").addEventListener("click", closeCart);
+
+function closeCart() {
+    document.getElementById("cart-sidebar").classList.remove("active");
+    document.getElementById("body-overlay").classList.remove("active");
+}
+
+/* ================================
+   INITIAL LOAD
+================================ */
+
+loadUsername();
+loadRestaurantMenu();
+renderCart();
+
+</script>
+
 </body>
 </html>

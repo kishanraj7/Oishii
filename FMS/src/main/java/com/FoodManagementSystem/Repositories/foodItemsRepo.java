@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 @Repository
 public interface foodItemsRepo extends JpaRepository<FoodItem,Integer> {
-//    void findByResturantId(String resturantId);
+    List<FoodItem> findByRestaurant_Rid(Integer rid);
     FoodItem findByFoodId(Integer foodId);
-    FoodItem deleteByFoodId(Integer foodId);
+    void deleteByFoodId(Integer foodId);
 }

@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+
 @CrossOrigin(origins = "http://127.0.0.1:5500")
 @RestController
 @RequestMapping("/users")
@@ -23,12 +25,22 @@ public class UserController {
        return ResponseEntity.ok(registerResponse);
     }
     @PostMapping("/login")
-    public ResponseEntity<String> Login(@RequestParam String userName, @RequestParam String pass){
-        String loginResponse = userService.login(userName,pass);
-        if (loginResponse.contains("Invalid")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(loginResponse);
+    public ResponseEntity<?> login(@RequestParam String userName,
+                                   @RequestParam String pass) {
+
+        User user = userService.login(userName, pass);
+
+        if (user != null) {
+            return ResponseEntity.ok(
+                    Map.of(
+                            "message", "Login Successful",
+                            "userId", user.getUid(),
+                            "username", user.getUsername()
+                    )
+            );
+        } else {
+            return ResponseEntity.status(401).body("Invalid Credentials");
         }
-        return ResponseEntity.ok(loginResponse);
     }
     @GetMapping("/profile/{id}")
     public ResponseEntity<User> getProfile(@PathVariable Integer id){
